@@ -13,7 +13,8 @@ CLASSES = \
 	PortoClient.java\
 	IServico.java\
 	Carga.java\
-	Navio.java
+	Navio.java\
+	Embarque.java
 
 default: classes
 

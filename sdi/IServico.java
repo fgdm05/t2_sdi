@@ -3,7 +3,7 @@ import java.rmi.*;
 public interface IServico extends Remote {
     // Estoque do navio (mochila)
     public double embarcar(String descricao) throws RemoteException;
-    // public String relatorio_embarque() throws RemoteException;
+    public String relatorio_embarque() throws RemoteException;
 
     // Descricao dos navios
     public Integer cadastrar_navio(String descricao, Integer capacidade) throws RemoteException;
