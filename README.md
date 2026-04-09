@@ -1,12 +1,11 @@
-# Trabalho 2 - Porto <br><br>
-## Nomes: Felipe Godinho Dal Molin, Vinícius Giroti <br><br>
+# Trabalho 2 - Porto
+## Nomes: Felipe Godinho Dal Molin, Vinícius Giroti
 
-### Instruções de compilação: <br>
+### Instruções de compilação:
 Digitar o seguinte comando no terminal:
 ```
 make
 ```
-<br><br>
 ### Instruções de execução:
 Primeiro inicializar o servidor, com o seguinte comando no terminal:
 ```
