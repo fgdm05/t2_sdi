@@ -10,6 +10,7 @@ public class PortoServer implements IServico {
     static int id_carga = 1;
     static List<Navio> navios = new ArrayList<>();
     static List<Carga> cargas = new ArrayList<>();
+    static HashMap<String,Map<Navio,List<Carga>>> testes_embarque = new HashMap<>();
 
     public static void main(String[] args) {
         try {
@@ -76,36 +77,84 @@ public class PortoServer implements IServico {
         return f;
     };
 
+
     public double embarcar(String descricao) throws RemoteException {
         double s_cargas = 0;
         for(Carga c : cargas) {
             s_cargas += c.getVolume();
         }
         
-        List<Carga> c_cargas = new ArrayList<>(cargas);
-        List<Navio> c_navios = new ArrayList<>(navios);
+        List<Carga> c_cargas = new ArrayList<>(cargas); // ws
+        List<Navio> c_navios = new ArrayList<>(navios); // 
+        List<Carga> selecionadas_total = new ArrayList<>();
+        Map<Navio, List<Carga>> mapa = new HashMap<>();
         Collections.sort(c_navios);
+        for(int i = 0; i < c_navios.size(); i++) {
+            mapa.put(c_navios.get(i), new ArrayList<>());
+        }
 
-        double max_cap = 0;
         for(Navio n : c_navios) {
+            List<Carga> cs = mapa.get(n);
             
+            int nItens = c_cargas.size();
+            int capacidade = (int) n.getCapacidade();
+
+            int[][] matriz = new int[nItens + 1][capacidade + 1];
+
+            // Inicialização já é 0 por padrão em Java
+
+            for (int i = 1; i <= nItens; i++) {
+                int volume = (int) c_cargas.get(i - 1).getVolume();
+
+                for (int j = 1; j <= capacidade; j++) {
+
+                    if (volume > j) {
+                        matriz[i][j] = matriz[i - 1][j];
+                    } else {
+                        matriz[i][j] = Math.max(
+                            matriz[i - 1][j],
+                            matriz[i - 1][j - volume] + volume // valor = volume
+                        );
+                    }
+                }
+            }
+
+            List<Carga> selecionadas = new ArrayList<>();
+
+            int i = nItens;
+            int j = capacidade;
+
+            while (i > 0 && j > 0) {
+                int volume = (int) cargas.get(i - 1).getVolume();
+
+                // Se o valor é diferente do de cima, o item foi incluído
+                if (matriz[i][j] != matriz[i - 1][j]) {
+                    Carga c = cargas.get(i - 1);
+                    selecionadas.add(c);
+
+                    j -= volume; // reduz a capacidade restante
+                }
+
+                i--;
+            }
+            cs = selecionadas;
+            c_cargas.removeAll(selecionadas);  
+            selecionadas_total.addAll(selecionadas);
         }
-
-
-
-
-        if(s_cargas <= max_cap) {
-            
-            
-            return s_cargas;
-        } else {
-            throw new CapacidadeIndisponivelException("Capacidade indisponível para embarque");
+        // S(cargas) / S(capac usadas)
+        int soma_carga = 0;
+        int soma_navio = 0;
+        for (Carga c : selecionadas_total) {
+            soma_carga += c.getVolume();
         }
-
-
-
-        return 0;
+        for(Navio n : mapa.keySet()) {
+            soma_navio += n.getCapacidade();
+        }
+        if (!c_cargas.isEmpty()) {
+            Navio sobrou = new Navio(-1, "Sobrou", -1);
+            mapa.put(sobrou, new ArrayList<>(c_cargas));
+        }
+        testes_embarque.put(descricao, mapa);
+        return (double)soma_carga/soma_navio;
     }
-
-
 }
